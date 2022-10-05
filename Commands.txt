@@ -1,0 +1,70 @@
+from news.models import *
+
+user_1 = User.objects.create_user('Ivan Ivanov')
+user_2 = User.objects.create_user('Jack Daniels')
+writer_1 = Author.objects.create(author=user_1)
+writer_2 = Author.objects.create(author=user_2)
+
+Category.objects.create(category = 'Sport')
+Category.objects.create(category = 'Science')
+Category.objects.create(category = 'Business')
+Category.objects.create(category = 'Politics')
+
+Post.objects.create(author_name=writer_1,title='Гуманоидный робот Tesla.', post_content="Когда там уже Матрица наступит? На очередной презентации компании Tesla ее гендиректор Илон Макс представил публике робота-андроида Optimus, в котором есть элементы искусственного интеллекта и датчики автопилота из инновационных машин знаменитого изобретателя. На шоу гуманоидный робот самостоятельно прошелся по сцене, не будучи подключенным проводами к компьютеру. Было показано, что он может перетаскивать небольшие коробки, поливать цветы из лейки и проводить другие простые манипуляции.")
+Post.objects.create(author_name = writer_1, title='Новый кроссовер с «автоматом».', post_content="Компания Chery показала кроссовер с «автоматом», который ждут в России. В Поднебесной дебютировал Yaoguang — новинка дочерней марки Exeed, которая первой примерила новый фирменный стиль китайского премиум-бренда. Особенности модели — классическая коробка передач с гидротрансформатором, адаптивные амортизаторы и «мерседесовский» интерфейс в салоне. Сборка Exeed Yaoguang уже началась, продажи в Китае начнутся в ближайшее время.")
+post_3 = Post.objects.create(author_name = writer_2, title='Радимов уволен с поста главного тренера.', post_content="Российский специалист Владислав Радимов уволен с поста главного тренера «Зенита-2». Об этом «Чемпионату» сообщил источник, знакомый с ситуацией. В нынешнем сезоне под руководством Радимова «Зенит-2» набрал 18 очков в 13 матчах и занимает шестое место в турнирной таблице своей подгруппы Второй лиги. В последних семи матчах вторая команда «Зенита» добыла всего одну победу.")
+post_1 = Post.objects.get(id=1)
+post_2 = Post.objects.get(id=2)
+post_1.post_type='article'
+post_1.save()
+
+post_1.post_category.add(Category.objects.get(id=2))
+post_2.post_category.add(Category.objects.get(id=2), Category.objects.get(id=3))
+post_3.post_category.add(Category.objects.get(id=1))
+
+Comment.objects.create(comment_content='Хорошая статья!', comment_to_post=Post.objects.get(id=1), comment_to_user=Author.objects.get(id=1).author)
+Comment.objects.create(comment_content='Ничего интересного в этой новости нет...', comment_to_post=Post.objects.get(id=2), comment_to_user=Author.objects.get(id=1).author)
+Comment.objects.create(comment_content='Супер новость ...', comment_to_post=Post.objects.get(id=2),comment_to_user=Author.objects.get(id=2).author)
+Comment.objects.create(comment_content='Давно пора!', comment_to_post=Post.objects.get(id=3), comment_to_user=Author.objects.get(id=2).author)
+Comment.objects.create(comment_content='Не придумал ничего:)', comment_to_post=Post.objects.get(id=3), comment_to_user=Author.objects.get(id=2).author)
+
+Post.objects.get(id=1).like()
+Post.objects.get(id=1).like()
+Post.objects.get(id=2).like()
+Post.objects.get(id=2).like()
+Post.objects.get(id=2).like()
+Post.objects.get(id=3).like()
+Post.objects.get(id=1).dislike()
+Post.objects.get(id=3).dislike()
+Post.objects.get(id=3).dislike()
+Post.objects.get(id=3).dislike()
+
+Comment.objects.get(id=1).like()
+Comment.objects.get(id=2).like()
+Comment.objects.get(id=3).like()
+Comment.objects.get(id=4).like()
+Comment.objects.get(id=5).like()
+Comment.objects.get(id=5).dislike()
+Comment.objects.get(id=5).dislike()
+Comment.objects.get(id=5).dislike()
+Comment.objects.get(id=5).dislike()
+
+writer_1.update_rating()
+writer_2.update_rating()
+writer_1.author_rating
+writer_2.author_rating
+
+best = Author.objects.order_by('-author_rating')[0]
+best.author
+best.author_rating
+best_author = f'{best.author} с рейтингом {best.author_rating} - лучший пользователь'
+best_author
+best_post = Post.objects.order_by('-rating')[0]
+best_post_result = f'"{best_post.title}" лучшая {best_post.get_post_type_display()} от {best_post.author_name.author} с рейтингом {best_post.rating}, созданная {best_post.post_creation_date} ... Краткое содержание {best_post.preview()}'
+best_post_result
+all_comments = best_post.comment_set.all()
+for i in all_comments:
+    f"Комментарий с рейтингом {i.rating} создан {i.comment_creation_date} пользователем {i.comment_to_user}... Текст комментария --> '{i.comment_content}'"
+
+
+
